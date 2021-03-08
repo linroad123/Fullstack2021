@@ -1,0 +1,11 @@
+browser->server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+note over browser
+The browser sends the new note as JSON-data
+end note
+
+server-->browser: HTTP status 201 (Created)
+
+note over browser:
+browser adds the new value useing the JavaScript code 
+it fetched from the server
+end note
