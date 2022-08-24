@@ -21,9 +21,3 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-/src
-/public
-README.md
-package.json
-package-lock.json
