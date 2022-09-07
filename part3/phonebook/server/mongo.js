@@ -29,14 +29,14 @@ mongoose.connect(
 const personSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
     minlength: 3,
     unique: true,
+    required: true
   },
   number: {
     type: String,
-    required: true,
     minlength: 8,
+    required: true
   },
 });
 personSchema.plugin(uniqueValidator);

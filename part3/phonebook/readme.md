@@ -1,6 +1,2 @@
 Link to the project on Heroku:
-https://fullphonebook.herokuapp.com/
-<!-- 
-username: luphonebook
-sec:
-W3z6GppXVqQQZetd -->
+https://aalto-phonebook.herokuapp.com/

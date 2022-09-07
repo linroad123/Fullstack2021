@@ -1,5 +1,6 @@
 
 const mongoose = require('mongoose')
+const validator = require("validator");
 const url = process.env.MONGO_URL
 
 mongoose.connect(url, {
@@ -18,9 +19,29 @@ mongoose.connect(url, {
 const personSchema = new mongoose.Schema({
     name: {
         type: String,
-        unique: true
+        minlength: 3,
+        unique: true,
+        required: true
     },
-    number: String
+
+
+
+    number: {
+        type: String,
+        minlength: 8,
+        validate: {
+            validator: function(v) {
+              return /\d{2,3}-\d+/.test(v);
+            },
+            error: props => `${props.value} is not a valid phone number!`
+          },
+        // validate(value) {
+        //     if (/\d{2,3}-\d+/.test(value) == false) {
+        //         throw Error(`${value}is not a valid phone number!`);
+        //     }
+        // },
+        required: true
+    },
 })
 personSchema.set('toJSON', {
     transform: (document, returnedObject) => {

@@ -28,18 +28,13 @@ app.use(
 );
 
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message);
-
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
   } else if (error.name === "ValidationError") {
     return response.status(400).json({ error: error.message });
   }
-
   next(error);
 };
-
-app.use(errorHandler);
 
 app.get("/api/persons", (req, res) => {
   Person.find({}).then((persons) => {
@@ -58,14 +53,9 @@ app.get("/api/persons/:id", (request, response, next) => {
     .catch((error) => next(error));
 });
 app.put("/api/persons/:id", (request, response, next) => {
-  const body = request.body;
+  const { name, body } = request.body;
 
-  const person = {
-    name: body.name,
-    number: body.number,
-  };
-
-  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+  Person.findByIdAndUpdate(request.params.id, { name, body }, { new: true, runValidators: true, context: 'query' })
     .then((updatedPerson) => {
       response.json(updatedPerson);
     })
@@ -77,18 +67,27 @@ app.delete("/api/persons/:id", (request, response) => {
     response.status(204).end()
   );
 });
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const body = request.body;
   if (body.name && body.number) {
     const person = new Person({
       name: body.name,
       number: body.number,
     });
-    person.save().then((savedPerson) => {
-      response.json(savedPerson);
-    })
-      .catch((error) => {
-        response.status(400).json({ error: error.message });
+    let error = person.validateSync();
+
+    person.save()
+      .then((savedPerson) => {
+        response.json(savedPerson);
+      })
+      .catch(error => {
+        // console.log(error.response.data.error);
+        console.log("-----------");
+        console.log(error.name)
+        console.log(error.message)
+        console.log("-----------");
+
+        next(error)
       });
   } else {
     return response.status(400).json({ error: "content missing" });
@@ -103,3 +102,6 @@ app.get("/info", (req, res) => {
     );
   });
 });
+
+
+app.use(errorHandler);
