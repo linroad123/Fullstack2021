@@ -23,8 +23,7 @@ const jwt = require("jsonwebtoken");
 
 blogsRouter.get("/", async (request, response) => {
   const blogs = await Blog
-    .find({})
-    .populate("user", { username: 1, name: 1 });
+    .find({}).populate("user", { username: 1, name: 1 });
   response.json(blogs.map((blog) => blog.toJSON()));
 });
 
@@ -57,6 +56,8 @@ blogsRouter.post("/", async (request, response, next) => {
   const result = await blog.save();
 
   user.blogs = user.blogs.concat(blog._id);
+  await user.save();
+  
   response.status(201).json(result);
 });
 

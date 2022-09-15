@@ -6,7 +6,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node server/index.js",
     "dev": "cross-env NODE_ENV=development nodemon server/index.js",
-    "test": "cross-env NODE_ENV=test jest --verbose --runInBand"
+    "test": "cross-env NODE_ENV=test jest --verbose --runInBand --forceExit"
   },
   "author": "",
   "license": "ISC",
@@ -14,7 +14,7 @@
     "cross-env": "^7.0.3",
     "jest": "^26.6.3",
     "nodemon": "^2.0.6",
-    "supertest": "^6.0.1"
+    "supertest": "^6.2.4"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",

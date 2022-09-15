@@ -122,11 +122,7 @@ describe("favourite blog", () => {
       },
     ];
     const result = listHelper.favoriteBlog(blogs);
-    expect(result).toEqual({
-      title: "title2",
-      author: "author2",
-      likes: 15,
-    });
+    expect(result).toMatchObject({ likes: 15, });
   });
 });
 
@@ -218,10 +214,7 @@ describe("most blogs", () => {
       },
     ];
     const result = listHelper.mostBlogs(blogs);
-    expect(result).toEqual({
-      author: "author2",
-      blogs: 2,
-    });
+    expect(result).toMatchObject({ blogs: 2 });
   });
 });
 
@@ -312,9 +305,6 @@ describe("most likes", () => {
       },
     ];
     const result = listHelper.mostLikes(blogs);
-    expect(result).toEqual({
-      author: "author2",
-      likes: 30,
-    });
+    expect(result).toMatchObject({ likes: 30 });
   });
 });

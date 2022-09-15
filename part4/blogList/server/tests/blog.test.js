@@ -16,23 +16,23 @@ beforeEach(async () => {
   const promiseArray = blogObjects.map((blog) => blog.save());
   await Promise.all(promiseArray);
 });
-describe("GET request tests", () => {
-  test("all blogs are returned as json", async () => {
-    const response = await api
-      .get("/api/blogs")
-      .expect(200)
-      .expect("Content-Type", /application\/json/);
-    expect(response.body).toHaveLength(helper.initialBlogs.length);
-  });
-  test("all blogs have id field called 'id'", async () => {
-    const response = await api.get("/api/blogs");
-    response.body.forEach((element) => {
-      expect(element.id).toBeDefined();
-    });
-  });
-});
+// describe("GET request tests", () => {
+//   // test("all blogs are returned as json", async () => {
+//   //   const response = await api
+//   //     .get("/api/blogs")
+//   //     .expect(200)
+//   //     .expect("Content-Type", /application\/json/);
+//   //   expect(response.body).toHaveLength(helper.initialBlogs.length);
+//   // });
+//   // test("all blogs have id field called 'id'", async () => {
+//   //   const response = await api.get("/api/blogs");
+//   //   response.body.forEach((element) => {
+//   //     expect(element.id).toBeDefined();
+//   //   });
+//   // });
+// });
 
-describe("POST request tests", () => {
+describe("GET and POST request tests", () => {
   beforeEach(async () => {
     await User.deleteMany({});
 
@@ -47,7 +47,24 @@ describe("POST request tests", () => {
     token = jwt.sign(userForToken, process.env.SECRET);
   });
 
-  test("POST request to /api/blogs creates new blog entry", async () => {
+  test("GET: all blogs are returned as json", async () => {
+    const response = await api
+      .get("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200)
+      .expect("Content-Type", /application\/json/);
+    expect(response.body).toHaveLength(helper.initialBlogs.length);
+  });
+  test("GET: all blogs have id field called 'id'", async () => {
+    const response = await api
+      .get("/api/blogs")
+      .set("Authorization", `Bearer ${token}`);
+    response.body.forEach((element) => {
+      expect(element.id).toBeDefined();
+    });
+  });
+
+  test("POST: request to /api/blogs creates new blog entry", async () => {
     await api
       .post("/api/blogs")
       .set("Authorization", `Bearer ${token}`)
@@ -60,11 +77,25 @@ describe("POST request tests", () => {
       .expect(201)
       .expect("Content-Type", /application\/json/);
 
-    const response = await api.get("/api/blogs");
+    const response = await api
+      .get("/api/blogs")
+      .set("Authorization", `Bearer ${token}`);
     expect(response.body).toHaveLength(helper.initialBlogs.length + 1);
   });
 
-  test("POST request to /api/blogs with no 'likes' creates object with 'likes' set to 0", async () => {
+  test("POST: unauthorized request to /api/blogs returns 401 error", async () => {
+    await api
+      .post("/api/blogs")
+      .send({
+        title: "newTitle",
+        author: "newAuthor",
+        url: "new.link.com",
+        likes: 1,
+      })
+      .expect(401)
+  });
+
+  test("POST: request to /api/blogs with no 'likes' creates object with 'likes' set to 0", async () => {
     const user = await User.findOne({});
     const response = await api
       .post("/api/blogs")
@@ -79,7 +110,7 @@ describe("POST request tests", () => {
 
     expect(response.body).toHaveProperty("likes", 0);
   });
-  test("POST request to /api/blogs with no 'title' and 'url' parameters returns status of 400", async () => {
+  test("POST: request to /api/blogs with no 'title' and 'url' parameters returns status of 400", async () => {
     await api
       .post("/api/blogs")
       .set("Authorization", `Bearer ${token}`)
@@ -89,7 +120,7 @@ describe("POST request tests", () => {
       })
       .expect(400);
   });
-  test("POST request to /api/blogs without token will return 401", async () => {
+  test("POST: request to /api/blogs without token will return 401", async () => {
     await api
       .post("/api/blogs")
       .send({
@@ -101,7 +132,7 @@ describe("POST request tests", () => {
   });
 });
 
-describe("when there is initially one user at db", () => {
+describe("User management (1 user already present)", () => {
   beforeEach(async () => {
     await User.deleteMany({});
     const user = new User({ username: "root", password: "toor" });
@@ -120,7 +151,7 @@ describe("when there is initially one user at db", () => {
     await api
       .post("/api/users")
       .send(newUser)
-      .expect(200)
+      .expect(201)
       .expect("Content-Type", /application\/json/);
 
     const usersAtEnd = await helper.usersInDb();
@@ -145,7 +176,7 @@ describe("when there is initially one user at db", () => {
       .expect(400)
       .expect("Content-Type", /application\/json/);
 
-    expect(result.body.error).toContain("`username` to be unique");
+    expect(result.body.error).toContain("username must be unique");
 
     const usersAtEnd = await helper.usersInDb();
     expect(usersAtEnd.length).toBe(usersAtStart.length);
